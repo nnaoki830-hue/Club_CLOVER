@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>出勤入力 | Club CLOVER</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="brand" href="index.html">
+        <span class="brand-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>
+      </a>
+      <div class="admin-actions">
+        <a class="button button-ghost" href="admin.html">管理画面</a>
+        <button class="button button-ghost" type="button" data-logout>ログアウト</button>
+        <a class="button button-primary" href="index.html">トップ確認</a>
+      </div>
+    </header>
+
+    <main class="simple-admin-shell">
+      <section class="admin-editor">
+        <div class="section-heading compact">
+          <p class="section-kicker">SCHEDULE</p>
+          <h1>本日の出勤入力</h1>
+        </div>
+
+        <div class="schedule-toolbar">
+          <button class="button button-ghost" type="button" id="prevDateButton">前日</button>
+          <label>
+            <span>日付</span>
+            <input id="scheduleDate" type="date">
+          </label>
+          <button class="button button-ghost" type="button" id="nextDateButton">翌日</button>
+        </div>
+
+        <div id="scheduleCastList" class="schedule-list"></div>
+
+        <div class="form-actions">
+          <button class="button button-primary" type="button" id="saveScheduleButton">出勤を保存</button>
+          <p class="save-status" id="scheduleStatus" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/cloud.js"></script>
+    <script src="assets/js/schedule.js"></script>
+  </body>
+</html>

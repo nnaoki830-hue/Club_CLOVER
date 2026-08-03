@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club CLOVER | Kanagawa Night Lounge</title>
+    <meta name="description" content="Club CLOVERの公式ホームページ。店内写真、在籍キャスト、料金システム、店舗情報をご覧いただけます。">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body>
+    <div class="intro" aria-hidden="true">
+      <div class="intro-stage">
+        <img class="intro-logo intro-logo-depth" src="assets/images/logo-clover-main.png" alt="">
+        <img class="intro-logo intro-logo-main" src="assets/images/logo-clover-main.png" alt="">
+        <span class="intro-logo-shine"></span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Club CLOVER トップへ">
+        <span class="brand-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>
+      </a>
+      <nav class="site-nav" aria-label="メインメニュー">
+        <a href="cast.html">CAST</a>
+        <a href="#system">SYSTEM</a>
+        <a href="#gallery">GALLERY</a>
+        <a href="#access">ACCESS</a>
+        <a href="#reserve">RESERVE</a>
+        <a href="recruit.html">RECRUIT</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div class="hero-slider" aria-label="Club CLOVER 店内写真スライド">
+          <figure class="hero-slide is-active">
+            <img src="assets/images/interior-01.jpg" alt="Club CLOVER 店内写真 1">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-02.jpg" alt="Club CLOVER 店内写真 2">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-03.jpg" alt="Club CLOVER 店内写真 3">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-04.avif" alt="Club CLOVER 店内写真 4">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-05.avif" alt="Club CLOVER 店内写真 5">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-06.avif" alt="Club CLOVER 店内写真 6">
+          </figure>
+          <figure class="hero-slide">
+            <img src="assets/images/interior-07.avif" alt="Club CLOVER 店内写真 7">
+          </figure>
+        </div>
+        <div class="hero-shade"></div>
+        <div class="hero-grid"></div>
+
+        <div class="hero-content">
+          <p class="eyebrow" data-setting="heroEyebrow">KANAGAWA / NIGHT LOUNGE</p>
+          <h1><span>Club</span> CLOVER</h1>
+          <p class="hero-copy" data-setting="heroCopy">赤く艶めくソファとクリスタルの光が迎える、上質で華やかなナイトラウンジ。</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="cast.html">CASTを見る</a>
+            <a class="button button-ghost" href="#access">店舗情報</a>
+            <a class="button button-ghost" href="#reserve">予約する</a>
+            <a class="button button-ghost" href="recruit.html">求人応募</a>
+          </div>
+        </div>
+
+        <div class="hero-controls" aria-label="スライド操作">
+          <button class="icon-button" type="button" data-slide-control="prev" aria-label="前の写真">‹</button>
+          <div class="hero-dots" aria-label="写真を選択"></div>
+          <button class="icon-button" type="button" data-slide-control="next" aria-label="次の写真">›</button>
+        </div>
+        <div class="hero-progress" aria-hidden="true"><span></span></div>
+      </section>
+
+      <section class="announce section-band">
+        <div class="announce-head">
+          <div class="announce-label">NEWS</div>
+          <p>ピックアップ</p>
+        </div>
+        <div id="newsTimeline" class="news-timeline"></div>
+      </section>
+
+      <section class="section today-section" id="today" aria-labelledby="today-title">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">TODAY</p>
+            <h2 id="today-title">本日の出勤</h2>
+          </div>
+          <p id="todayDate" class="today-date"></p>
+        </div>
+        <div id="todaySchedule" class="today-list"></div>
+      </section>
+
+      <section class="section blog-section" id="blog" aria-labelledby="blog-title">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">BLOG</p>
+            <h2 id="blog-title">ブログ更新</h2>
+          </div>
+          <span class="text-link">30日以内の投稿</span>
+        </div>
+        <div id="blogUpdates" class="blog-list"></div>
+      </section>
+
+      <section class="section cast-link-section" aria-labelledby="cast-link-title">
+        <div class="cast-link-panel">
+          <p class="section-kicker">CAST LIST</p>
+          <h2 id="cast-link-title">在籍一覧</h2>
+          <p data-setting="castLinkText">在籍キャストのプロフィール、出勤曜日、ポケパラブログはこちらからご確認いただけます。</p>
+          <a class="button button-primary" href="cast.html">在籍一覧を見る</a>
+        </div>
+      </section>
+
+      <section class="section gallery-section" id="gallery" aria-labelledby="gallery-title">
+        <div class="section-heading">
+          <p class="section-kicker">GALLERY</p>
+          <h2 id="gallery-title">店内写真</h2>
+        </div>
+        <div class="gallery-strip" aria-label="店内写真一覧">
+          <img src="assets/images/interior-01.jpg" alt="Club CLOVER 店内写真 1">
+          <img src="assets/images/interior-02.jpg" alt="Club CLOVER 店内写真 2">
+          <img src="assets/images/interior-03.jpg" alt="Club CLOVER 店内写真 3">
+          <img src="assets/images/interior-04.avif" alt="Club CLOVER 店内写真 4">
+          <img src="assets/images/interior-05.avif" alt="Club CLOVER 店内写真 5">
+          <img src="assets/images/interior-06.avif" alt="Club CLOVER 店内写真 6">
+          <img src="assets/images/interior-07.avif" alt="Club CLOVER 店内写真 7">
+        </div>
+      </section>
+
+      <section class="section system-section" id="system" aria-labelledby="system-title">
+        <div class="section-heading">
+          <p class="section-kicker">SYSTEM</p>
+          <h2 id="system-title">料金システム</h2>
+        </div>
+        <div class="system-layout">
+          <div class="price-board">
+            <div class="price-row">
+              <span data-price-label="0">SET 60min</span>
+              <strong data-price-value="0">お問い合わせください</strong>
+            </div>
+            <div class="price-row">
+              <span data-price-label="1">延長 30min</span>
+              <strong data-price-value="1">お問い合わせください</strong>
+            </div>
+            <div class="price-row">
+              <span data-price-label="2">指名 / 場内</span>
+              <strong data-price-value="2">お問い合わせください</strong>
+            </div>
+            <div class="price-row">
+              <span data-price-label="3">TAX / SERVICE</span>
+              <strong data-price-value="3">店舗にてご案内</strong>
+            </div>
+          </div>
+          <div class="system-note">
+            <h3 data-setting="systemTitle">Party & VIP</h3>
+            <p data-setting="systemText">団体様、貸切、記念日のご利用もご相談ください。シーンに合わせたお席をご案内します。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section access-section" id="access" aria-labelledby="access-title">
+        <div class="section-heading">
+          <p class="section-kicker">ACCESS</p>
+          <h2 id="access-title">店舗情報</h2>
+        </div>
+        <div class="access-layout">
+          <div class="access-info">
+            <dl>
+              <div>
+                <dt>店名</dt>
+                <dd data-setting="shopName">Club CLOVER</dd>
+              </div>
+              <div>
+                <dt>エリア</dt>
+                <dd data-setting="area">神奈川</dd>
+              </div>
+              <div>
+                <dt>営業時間</dt>
+                <dd data-setting="openHours">20:00 - LAST</dd>
+              </div>
+              <div>
+                <dt>定休日</dt>
+                <dd data-setting="holiday">店舗へご確認ください</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="map-panel" aria-label="地図表示エリア">
+            <span data-setting="shopName">Club CLOVER</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reservation-section" id="reserve" aria-labelledby="reserve-title">
+        <div class="reservation-panel">
+          <p class="section-kicker">RESERVATION</p>
+          <h2 id="reserve-title">ご予約</h2>
+          <p data-setting="reservationText">ご来店日時、人数、ご希望のお席などを添えてお問い合わせください。内容を確認後、店舗よりご連絡いたします。</p>
+          <div class="reservation-actions">
+            <a class="button button-primary" data-reservation-email href="mailto:reservation@club-clover.jp?subject=Club%20CLOVER%20%E4%BA%88%E7%B4%84%E5%B8%8C%E6%9C%9B&body=%E3%80%90%E3%81%94%E4%BA%88%E7%B4%84%E5%B8%8C%E6%9C%9B%E3%80%91%0A%E3%81%8A%E5%90%8D%E5%89%8D%EF%BC%9A%0A%E3%81%94%E6%9D%A5%E5%BA%97%E5%B8%8C%E6%9C%9B%E6%97%A5%EF%BC%9A%0A%E3%81%94%E6%9D%A5%E5%BA%97%E6%99%82%E9%96%93%EF%BC%9A%0A%E4%BA%BA%E6%95%B0%EF%BC%9A%0A%E9%9B%BB%E8%A9%B1%E7%95%AA%E5%8F%B7%EF%BC%9A%0A%E3%81%94%E8%A6%81%E6%9C%9B%EF%BC%9A">メールで予約</a>
+            <a class="button button-ghost" data-line-url href="https://line.me/R/ti/p/@clubclover" target="_blank" rel="noopener">公式LINEで予約</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-main">
+          <p>Club CLOVER</p>
+          <small>20歳未満の方の入店および飲酒は法律で禁止されています。</small>
+        </div>
+        <nav class="footer-social" aria-label="SNSリンク">
+          <a data-social="socialX" href="https://x.com/clubclover" target="_blank" rel="noopener"><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4.1l4.62 5.92L17.75 4H20l-6.16 7.25L20.5 20h-4.1l-4.96-6.36L6.05 20H3.8l6.54-7.7Z" stroke="none"></path></svg></span><span>X</span></a>
+          <a data-social="socialInstagram" href="https://www.instagram.com/clubclover/" target="_blank" rel="noopener"><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke-width="2"></rect><circle cx="12" cy="12" r="3.8" fill="none" stroke-width="2"></circle><circle cx="17.2" cy="6.8" r="1.2" stroke="none"></circle></svg></span><span>Instagram</span></a>
+          <a data-social="socialTikTok" href="https://www.tiktok.com/@clubclover" target="_blank" rel="noopener"><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v11.1a4.6 4.6 0 1 1-4-4.55v3.05a1.72 1.72 0 1 0 1.15 1.62V3h2.85c.42 2.1 1.75 3.52 4 3.95V10c-1.52-.12-2.86-.7-4-1.62Z" stroke="none"></path></svg></span><span>TikTok</span></a>
+          <a data-social="socialLine" href="https://line.me/R/ti/p/@clubclover" target="_blank" rel="noopener"><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4C7 4 3 7.1 3 11c0 3.12 2.55 5.78 6.1 6.68L9 20.8c-.02.54.58.87 1.02.56l3.98-2.78c4-.62 7-3.55 7-7.58 0-3.9-4-7-9-7Z" fill="none" stroke-width="2" stroke-linejoin="round"></path></svg></span><span>公式LINE</span></a>
+        </nav>
+      </div>
+    </footer>
+
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/cloud.js"></script>
+    <script src="assets/js/site.js"></script>
+  </body>
+</html>

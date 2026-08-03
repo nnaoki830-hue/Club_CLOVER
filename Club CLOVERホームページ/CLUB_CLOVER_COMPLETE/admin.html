@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club CLOVER | Cast Admin</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="brand" href="index.html">
+        <span class="brand-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>
+      </a>
+      <div class="admin-actions">
+        <button class="button button-ghost" type="button" id="sampleResetButton">初期データ</button>
+        <a class="button button-primary" href="index.html">トップ確認</a>
+      </div>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-editor site-admin" aria-labelledby="site-editor-title">
+        <div class="section-heading compact">
+          <p class="section-kicker">SITE ADMIN</p>
+          <h1 id="site-editor-title">サイト内容編集</h1>
+        </div>
+
+        <form id="siteForm" class="cast-form">
+          <label>
+            <span>トップ小見出し</span>
+            <input id="settingHeroEyebrow" type="text" maxlength="60">
+          </label>
+          <label>
+            <span>トップ紹介文</span>
+            <textarea id="settingHeroCopy" rows="3" maxlength="180"></textarea>
+          </label>
+          <label>
+            <span>NEWS</span>
+            <textarea id="settingNewsText" rows="3" maxlength="180"></textarea>
+          </label>
+          <label>
+            <span>在籍一覧への紹介文</span>
+            <textarea id="settingCastLinkText" rows="3" maxlength="180"></textarea>
+          </label>
+
+          <section class="blog-admin" aria-labelledby="price-admin-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">SYSTEM</p>
+              <h2 id="price-admin-title">料金システム</h2>
+            </div>
+            <div class="form-grid">
+              <label><span>料金1 項目</span><input id="priceLabel0" type="text"></label>
+              <label><span>料金1 内容</span><input id="priceValue0" type="text"></label>
+              <label><span>料金2 項目</span><input id="priceLabel1" type="text"></label>
+              <label><span>料金2 内容</span><input id="priceValue1" type="text"></label>
+              <label><span>料金3 項目</span><input id="priceLabel2" type="text"></label>
+              <label><span>料金3 内容</span><input id="priceValue2" type="text"></label>
+              <label><span>料金4 項目</span><input id="priceLabel3" type="text"></label>
+              <label><span>料金4 内容</span><input id="priceValue3" type="text"></label>
+            </div>
+            <label>
+              <span>店舗紹介タイトル</span>
+              <input id="settingSystemTitle" type="text" maxlength="40">
+            </label>
+            <label>
+              <span>店舗紹介文</span>
+              <textarea id="settingSystemText" rows="3" maxlength="180"></textarea>
+            </label>
+          </section>
+
+          <section class="blog-admin" aria-labelledby="shop-admin-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">SHOP</p>
+              <h2 id="shop-admin-title">店舗情報・予約</h2>
+            </div>
+            <div class="form-grid">
+              <label><span>店名</span><input id="settingShopName" type="text"></label>
+              <label><span>エリア</span><input id="settingArea" type="text"></label>
+              <label><span>営業時間</span><input id="settingOpenHours" type="text"></label>
+              <label><span>定休日</span><input id="settingHoliday" type="text"></label>
+              <label><span>予約メール</span><input id="settingReservationEmail" type="text" placeholder="reservation@example.com"></label>
+              <label><span>公式LINE URL</span><input id="settingLineUrl" type="text"></label>
+            </div>
+            <label>
+              <span>予約案内文</span>
+              <textarea id="settingReservationText" rows="3" maxlength="180"></textarea>
+            </label>
+          </section>
+
+          <section class="blog-admin" aria-labelledby="sns-admin-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">SNS</p>
+              <h2 id="sns-admin-title">SNSリンク</h2>
+            </div>
+            <div class="form-grid">
+              <label><span>X URL</span><input id="settingSocialX" type="text"></label>
+              <label><span>Instagram URL</span><input id="settingSocialInstagram" type="text"></label>
+              <label><span>TikTok URL</span><input id="settingSocialTikTok" type="text"></label>
+              <label><span>公式LINE URL</span><input id="settingSocialLine" type="text"></label>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <button class="button button-primary" type="submit">サイト内容を保存</button>
+          </div>
+          <p class="save-status" id="siteSaveStatus" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-editor" aria-labelledby="editor-title">
+        <div class="section-heading compact">
+          <p class="section-kicker">CAST ADMIN</p>
+          <h1 id="editor-title">キャスト編集</h1>
+        </div>
+
+        <form id="castForm" class="cast-form">
+          <input type="hidden" id="castId">
+          <input type="hidden" id="photoData">
+
+          <div class="form-grid">
+            <label>
+              <span>名前</span>
+              <input id="castName" name="name" type="text" required maxlength="24" placeholder="例: RIN">
+            </label>
+            <label>
+              <span>かな</span>
+              <input id="castKana" name="kana" type="text" maxlength="24" placeholder="例: りん">
+            </label>
+            <label>
+              <span>肩書き</span>
+              <input id="castTitle" name="title" type="text" maxlength="40" placeholder="例: Elegant Queen">
+            </label>
+            <label>
+              <span>表示順</span>
+              <input id="castOrder" name="order" type="number" min="1" max="99" value="1">
+            </label>
+          </div>
+
+          <label>
+            <span>紹介文</span>
+            <textarea id="castMessage" name="message" rows="4" maxlength="120" placeholder="トップページに表示する短い紹介文"></textarea>
+          </label>
+
+          <label>
+            <span>ポケパラURL</span>
+            <input id="pokepalaUrl" name="pokepalaUrl" type="text" placeholder="https://www.pokepara.jp/...">
+          </label>
+
+          <section class="blog-admin" aria-labelledby="blog-admin-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">BLOG LINK</p>
+              <h2 id="blog-admin-title">ブログ投稿</h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                <span>投稿日</span>
+                <input id="blogDate" type="date">
+              </label>
+              <label>
+                <span>ブログタイトル</span>
+                <input id="blogTitle" type="text" maxlength="60" placeholder="例: 今日も出勤です">
+              </label>
+            </div>
+            <label>
+              <span>ブログURL</span>
+              <input id="blogUrl" type="text" placeholder="ポケパラのブログURL">
+            </label>
+            <div class="form-actions">
+              <button class="button button-ghost" type="button" id="addBlogButton">ブログを追加</button>
+            </div>
+            <div id="blogAdminList" class="blog-admin-list"></div>
+          </section>
+
+          <div class="photo-editor">
+            <div class="photo-preview" id="photoPreview" aria-label="写真プレビュー">
+              <span>PHOTO</span>
+            </div>
+            <div class="photo-tools">
+              <label class="file-button">
+                <input id="castPhoto" name="photo" type="file" accept="image/*">
+                <span>写真を選択</span>
+              </label>
+              <button class="button button-ghost" type="button" id="clearPhotoButton">写真を外す</button>
+            </div>
+          </div>
+
+          <fieldset class="day-fieldset">
+            <legend>出勤曜日</legend>
+            <label><input type="checkbox" name="days" value="mon">月</label>
+            <label><input type="checkbox" name="days" value="tue">火</label>
+            <label><input type="checkbox" name="days" value="wed">水</label>
+            <label><input type="checkbox" name="days" value="thu">木</label>
+            <label><input type="checkbox" name="days" value="fri">金</label>
+            <label><input type="checkbox" name="days" value="sat">土</label>
+            <label><input type="checkbox" name="days" value="sun">日</label>
+          </fieldset>
+
+          <label class="toggle-row">
+            <input id="castVisible" name="visible" type="checkbox" checked>
+            <span>トップページに表示</span>
+          </label>
+
+          <div class="form-actions">
+            <button class="button button-primary" type="submit">保存</button>
+            <button class="button button-ghost" type="button" id="newCastButton">新規作成</button>
+            <button class="button danger-button" type="button" id="deleteCastButton">削除</button>
+          </div>
+          <p class="save-status" id="saveStatus" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-list-section" aria-labelledby="list-title">
+        <div class="section-heading compact">
+          <p class="section-kicker">CAST LIST</p>
+          <h2 id="list-title">登録キャスト</h2>
+        </div>
+        <div id="adminCastList" class="admin-cast-list"></div>
+      </section>
+    </main>
+
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/admin.js"></script>
+  </body>
+</html>
