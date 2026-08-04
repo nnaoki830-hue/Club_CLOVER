@@ -27,29 +27,24 @@ exports.handler = async (event) => {
   }
 
   if (event.httpMethod === "POST") {
-    try {
-      const body = JSON.parse(event.body || "{}");
-      const data = {
-        casts: Array.isArray(body.casts) ? body.casts : [],
-        settings: body.settings && typeof body.settings === "object" ? body.settings : {},
-        schedule: body.schedule && typeof body.schedule === "object" ? body.schedule : {},
-        news: Array.isArray(body.news) ? body.news : [],
-        updatedAt: new Date().toISOString()
-      };
+    const body = JSON.parse(event.body || "{}");
+    const current = (await store.get(DATA_KEY, { type: "json" })) || {};
 
-      await store.setJSON(DATA_KEY, data);
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ ok: true, data })
-      };
-    } catch (error) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ ok: false, message: "保存データを読み込めませんでした" })
-      };
-    }
+    const data = {
+      casts: Array.isArray(body.casts) ? body.casts : current.casts || [],
+      settings: body.settings && typeof body.settings === "object" ? body.settings : current.settings || {},
+      schedule: body.schedule && typeof body.schedule === "object" ? body.schedule : current.schedule || {},
+      news: Array.isArray(body.news) ? body.news : current.news || [],
+      updatedAt: new Date().toISOString()
+    };
+
+    await store.setJSON(DATA_KEY, data);
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ ok: true, data })
+    };
   }
 
   return {
