@@ -1,9 +1,25 @@
 (function () {
   if (!window.CLOVER) return;
 
-  const ENDPOINT = "/.netlify/functions/site-data";
   const canUseCloud = window.location.protocol === "http:" || window.location.protocol === "https:";
-  if (!canUseCloud) return;
+  const config = window.CLOVER_FIREBASE_CONFIG;
+  const hasConfig = config && config.apiKey && !String(config.apiKey).includes("ここに") && config.projectId && !String(config.projectId).includes("ここに");
+
+  if (!canUseCloud || !hasConfig || !window.firebase) {
+    window.CLOVER_CLOUD = {
+      ready: false,
+      pull: async function () {},
+      push: async function () {}
+    };
+    return;
+  }
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(config);
+  }
+
+  const db = firebase.firestore();
+  const docRef = db.collection("site").doc("club-clover");
 
   const original = {
     saveCasts: CLOVER.saveCasts,
@@ -15,6 +31,9 @@
     resetSettings: CLOVER.resetSettings,
     resetPickupNews: CLOVER.resetPickupNews
   };
+
+  let pulling = false;
+  let savingTimer = null;
 
   function readJson(key, fallback) {
     try {
@@ -30,7 +49,8 @@
       casts: CLOVER.loadCasts(),
       settings: CLOVER.loadSettings(),
       schedule: readJson(CLOVER.SCHEDULE_KEY, {}),
-      news: CLOVER.loadPickupNews()
+      news: CLOVER.loadPickupNews(),
+      updatedAt: new Date().toISOString()
     };
   }
 
@@ -59,28 +79,31 @@
   }
 
   async function pull() {
+    pulling = true;
     try {
-      const response = await fetch(ENDPOINT, { cache: "no-store" });
-      if (!response.ok) return;
-      const result = await response.json();
-      if (applyData(result.data)) {
+      const snapshot = await docRef.get();
+      if (snapshot.exists && applyData(snapshot.data())) {
         document.dispatchEvent(new CustomEvent("clover:data-sync"));
       }
     } catch (error) {
-      // Netlify Functionsが使えない環境ではローカル保存だけで動かします。
+      console.warn("Firebaseから読み込みできませんでした", error);
+    } finally {
+      pulling = false;
     }
   }
 
-  async function push() {
+  async function pushNow() {
+    if (pulling) return;
     try {
-      await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentData())
-      });
+      await docRef.set(currentData(), { merge: true });
     } catch (error) {
-      // 通信に失敗しても入力中のブラウザには保存済みです。
+      console.warn("Firebaseへ保存できませんでした", error);
     }
+  }
+
+  function push() {
+    clearTimeout(savingTimer);
+    savingTimer = setTimeout(pushNow, 250);
   }
 
   CLOVER.saveCasts = function patchedSaveCasts(casts) {
@@ -131,6 +154,6 @@
     return value;
   };
 
-  window.CLOVER_CLOUD = { pull, push };
+  window.CLOVER_CLOUD = { ready: true, pull, push: pushNow };
   pull();
 })();
