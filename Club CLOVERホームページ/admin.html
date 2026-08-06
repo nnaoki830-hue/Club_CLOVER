@@ -190,15 +190,63 @@
             </label>
           </div>
 
-          <label>
-            <span>紹介文</span>
-            <textarea id="castMessage" name="message" rows="4" maxlength="180" placeholder="トップページに表示する短い紹介文"></textarea>
-          </label>
+          <div class="form-grid profile-meta-grid">
+            <label>
+              <span>誕生日</span>
+              <input id="castBirthday" name="birthday" type="text" maxlength="30" placeholder="例: 8月8日">
+            </label>
+            <label>
+              <span>年齢</span>
+              <input id="castAge" name="age" type="text" maxlength="12" placeholder="例: 24歳">
+            </label>
+            <label>
+              <span>身長</span>
+              <input id="castHeight" name="height" type="text" maxlength="12" placeholder="例: 160cm">
+            </label>
+            <label>
+              <span>血液型</span>
+              <select id="castBloodType" name="bloodType">
+                <option value="">未設定</option>
+                <option value="A型">A型</option>
+                <option value="B型">B型</option>
+                <option value="O型">O型</option>
+                <option value="AB型">AB型</option>
+                <option value="秘密">秘密</option>
+              </select>
+            </label>
+          </div>
 
-          <label>
-            <span>プロフィール文</span>
-            <textarea id="castProfile" name="profile" rows="7" maxlength="600" placeholder="在籍ページに表示する詳しいプロフィール"></textarea>
-          </label>
+          <section class="blog-admin" aria-labelledby="cast-sns-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">SOCIAL</p>
+              <h2 id="cast-sns-title">SNS連携</h2>
+            </div>
+            <div class="form-grid">
+              <label><span>X URL</span><input id="castSocialX" type="text" placeholder="https://x.com/..."></label>
+              <label><span>Instagram URL</span><input id="castSocialInstagram" type="text" placeholder="https://www.instagram.com/..."></label>
+              <label><span>TikTok URL</span><input id="castSocialTikTok" type="text" placeholder="https://www.tiktok.com/@..."></label>
+              <label><span>LINE URL</span><input id="castSocialLine" type="text" placeholder="https://line.me/..."></label>
+            </div>
+          </section>
+
+          <section class="blog-admin" aria-labelledby="cast-qa-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">Q&A</p>
+              <h2 id="cast-qa-title">Q&A</h2>
+            </div>
+            <label>
+              <span>質問</span>
+              <input id="qaQuestion" type="text" maxlength="80" placeholder="例: 好きなお酒は？">
+            </label>
+            <label>
+              <span>回答</span>
+              <textarea id="qaAnswer" rows="3" maxlength="240" placeholder="例: シャンパンが好きです"></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="button button-ghost" type="button" id="addQaButton">Q&Aを追加</button>
+            </div>
+            <div id="qaAdminList" class="blog-admin-list qa-admin-list"></div>
+          </section>
 
           <label>
             <span>ポケパラURL</span>

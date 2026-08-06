@@ -123,6 +123,81 @@
     `;
   }
 
+  function socialIcon(label) {
+    const icons = {
+      x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4.1l4.62 5.92L17.75 4H20l-6.16 7.25L20.5 20h-4.1l-4.96-6.36L6.05 20H3.8l6.54-7.7Z"></path></svg>',
+      instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><circle cx="12" cy="12" r="3.8"></circle><circle cx="17.2" cy="6.8" r="1.2"></circle></svg>',
+      tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v11.1a4.6 4.6 0 1 1-4-4.55v3.05a1.72 1.72 0 1 0 1.15 1.62V3h2.85c.42 2.1 1.75 3.52 4 3.95V10c-1.52-.12-2.86-.7-4-1.62Z"></path></svg>',
+      line: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4C7 4 3 7.1 3 11c0 3.12 2.55 5.78 6.1 6.68L9 20.8c-.02.54.58.87 1.02.56l3.98-2.78c4-.62 7-3.55 7-7.58 0-3.9-4-7-9-7Z"></path></svg>'
+    };
+    return icons[label] || label.toUpperCase();
+  }
+
+  function renderCastSocialLinks(cast) {
+    const sns = cast.sns || {};
+    const items = [
+      { key: "x", label: "X" },
+      { key: "instagram", label: "Instagram" },
+      { key: "tiktok", label: "TikTok" },
+      { key: "line", label: "LINE" }
+    ].filter((item) => sns[item.key]);
+
+    if (!items.length) return "";
+    return `
+      <div class="cast-social-links" aria-label="SNSリンク">
+        ${items
+          .map(
+            (item) => `<a class="cast-social-link cast-social-${item.key}" href="${CLOVER.escapeHtml(sns[item.key])}" target="_blank" rel="noopener" aria-label="${CLOVER.escapeHtml(item.label)}">${socialIcon(item.key)}</a>`
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
+  function renderCastDetails(cast) {
+    const details = [
+      ["誕生日", cast.birthday],
+      ["年齢", cast.age],
+      ["身長", cast.height],
+      ["血液型", cast.bloodType]
+    ].filter((detail) => detail[1]);
+
+    if (!details.length) return "";
+    return `
+      <dl class="cast-details">
+        ${details
+          .map(
+            ([label, value]) => `
+              <div class="cast-detail-item">
+                <dt>${CLOVER.escapeHtml(label)}</dt>
+                <dd>${CLOVER.escapeHtml(value)}</dd>
+              </div>
+            `
+          )
+          .join("")}
+      </dl>
+    `;
+  }
+
+  function renderCastQa(cast) {
+    const qa = Array.isArray(cast.qa) ? cast.qa.filter((item) => item.question || item.answer) : [];
+    if (!qa.length) return "";
+    return `
+      <div class="cast-qa">
+        ${qa
+          .map(
+            (item) => `
+              <div class="cast-qa-item">
+                <p class="cast-qa-q">Q. ${CLOVER.escapeHtml(item.question)}</p>
+                <p class="cast-qa-a">A. ${CLOVER.escapeHtml(item.answer)}</p>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
   function renderCastCard(cast) {
     const photo = cast.photo
       ? `<img src="${cast.photo}" alt="${CLOVER.escapeHtml(cast.name)}">`
@@ -136,14 +211,14 @@
 
     return `
       <article class="cast-card">
-        <div class="cast-photo ${cast.photo ? "has-photo" : ""}">${photo}</div>
+        <div class="cast-photo ${cast.photo ? "has-photo" : ""}">${photo}${renderCastSocialLinks(cast)}</div>
         <div class="cast-body">
           <p>${CLOVER.escapeHtml(cast.title)}</p>
           <h3>${CLOVER.escapeHtml(cast.name)}</h3>
           <span>${CLOVER.escapeHtml(cast.kana)}</span>
           <small>${CLOVER.escapeHtml(formatDays(cast.days))}</small>
-          <p class="cast-message">${CLOVER.escapeHtml(cast.message)}</p>
-          ${cast.profile ? `<p class="cast-profile">${CLOVER.escapeHtml(cast.profile)}</p>` : ""}
+          ${renderCastDetails(cast)}
+          ${renderCastQa(cast)}
           ${blogLink}
         </div>
       </article>

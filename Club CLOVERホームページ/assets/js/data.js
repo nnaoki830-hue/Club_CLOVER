@@ -22,6 +22,12 @@
       title: "Elegant Queen",
       message: "華やかな笑顔と落ち着いた会話で、特別な夜を上品に彩ります。",
       profile: "落ち着いた雰囲気と華やかな笑顔で、初めてのお客様にも心地よい時間をお届けします。",
+      birthday: "",
+      age: "",
+      height: "",
+      bloodType: "",
+      qa: [],
+      sns: {},
       days: ["wed", "fri", "sat"],
       visible: true,
       order: 1,
@@ -37,6 +43,12 @@
       title: "Sweet Rouge",
       message: "柔らかな空気感と明るい接客で、初めての方にも心地よい時間を。",
       profile: "自然体の会話と明るい空気づくりが得意です。楽しく過ごしたい夜にぜひ会いに来てください。",
+      birthday: "",
+      age: "",
+      height: "",
+      bloodType: "",
+      qa: [],
+      sns: {},
       days: ["tue", "thu", "sat"],
       visible: true,
       order: 2,
@@ -52,6 +64,12 @@
       title: "Luxury Smile",
       message: "洗練された立ち居振る舞いと会話で、CLOVERらしい華を添えます。",
       profile: "上品でゆったりした時間を大切にしています。大人の夜に合う丁寧なおもてなしを心がけています。",
+      birthday: "",
+      age: "",
+      height: "",
+      bloodType: "",
+      qa: [],
+      sns: {},
       days: ["mon", "fri", "sun"],
       visible: true,
       order: 3,
@@ -102,6 +120,26 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function normalizeCastSns(sns) {
+    const source = sns && typeof sns === "object" ? sns : {};
+    return {
+      x: source.x || "",
+      instagram: source.instagram || "",
+      tiktok: source.tiktok || "",
+      line: source.line || ""
+    };
+  }
+
+  function normalizeQa(items) {
+    return (Array.isArray(items) ? items : [])
+      .map((item, index) => ({
+        id: item.id || `qa-${Date.now()}-${index}`,
+        question: item.question || "",
+        answer: item.answer || ""
+      }))
+      .filter((item) => item.question || item.answer);
+  }
+
   function normalizeCast(cast, index) {
     return {
       id: cast.id || `cast-${Date.now()}-${index}`,
@@ -110,6 +148,12 @@
       title: cast.title || "Club CLOVER",
       message: cast.message || "",
       profile: cast.profile || "",
+      birthday: cast.birthday || "",
+      age: cast.age || "",
+      height: cast.height || "",
+      bloodType: cast.bloodType || "",
+      qa: normalizeQa(cast.qa),
+      sns: normalizeCastSns(cast.sns),
       days: Array.isArray(cast.days) ? cast.days : [],
       visible: cast.visible !== false,
       order: Number(cast.order) || index + 1,

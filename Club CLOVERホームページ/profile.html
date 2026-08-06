@@ -52,14 +52,48 @@
             <label><span>ポケパラURL</span><input id="profilePokepalaUrl" type="text"></label>
           </div>
 
-          <label>
-            <span>短い紹介文</span>
-            <textarea id="profileMessage" rows="4" maxlength="180"></textarea>
-          </label>
-          <label>
-            <span>プロフィール文</span>
-            <textarea id="profileLong" rows="7" maxlength="600" placeholder="好きなこと、接客の雰囲気、お客様へのメッセージなど"></textarea>
-          </label>
+          <div class="form-grid profile-meta-grid">
+            <label><span>誕生日</span><input id="profileBirthday" type="text" maxlength="30" placeholder="例: 8月8日"></label>
+            <label><span>年齢</span><input id="profileAge" type="text" maxlength="12" placeholder="例: 24歳"></label>
+            <label><span>身長</span><input id="profileHeight" type="text" maxlength="12" placeholder="例: 160cm"></label>
+            <label>
+              <span>血液型</span>
+              <select id="profileBloodType">
+                <option value="">未設定</option>
+                <option value="A型">A型</option>
+                <option value="B型">B型</option>
+                <option value="O型">O型</option>
+                <option value="AB型">AB型</option>
+                <option value="秘密">秘密</option>
+              </select>
+            </label>
+          </div>
+
+          <section class="blog-admin" aria-labelledby="profile-sns-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">SOCIAL</p>
+              <h2 id="profile-sns-title">SNS連携</h2>
+            </div>
+            <div class="form-grid">
+              <label><span>X URL</span><input id="profileSocialX" type="text" placeholder="https://x.com/..."></label>
+              <label><span>Instagram URL</span><input id="profileSocialInstagram" type="text" placeholder="https://www.instagram.com/..."></label>
+              <label><span>TikTok URL</span><input id="profileSocialTikTok" type="text" placeholder="https://www.tiktok.com/@..."></label>
+              <label><span>LINE URL</span><input id="profileSocialLine" type="text" placeholder="https://line.me/..."></label>
+            </div>
+          </section>
+
+          <section class="blog-admin" aria-labelledby="profile-qa-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">Q&A</p>
+              <h2 id="profile-qa-title">Q&A</h2>
+            </div>
+            <label><span>質問</span><input id="profileQaQuestion" type="text" maxlength="80" placeholder="例: 好きなお酒は？"></label>
+            <label><span>回答</span><textarea id="profileQaAnswer" rows="3" maxlength="240" placeholder="例: シャンパンが好きです"></textarea></label>
+            <div class="form-actions">
+              <button class="button button-ghost" type="button" id="profileAddQaButton">Q&Aを追加</button>
+            </div>
+            <div id="profileQaList" class="blog-admin-list qa-admin-list"></div>
+          </section>
 
           <div class="form-actions">
             <button class="button button-primary" type="submit">プロフィールを保存</button>

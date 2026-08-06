@@ -13,8 +13,18 @@
     name: document.getElementById("castName"),
     kana: document.getElementById("castKana"),
     title: document.getElementById("castTitle"),
-    message: document.getElementById("castMessage"),
-    profile: document.getElementById("castProfile"),
+    birthday: document.getElementById("castBirthday"),
+    age: document.getElementById("castAge"),
+    height: document.getElementById("castHeight"),
+    bloodType: document.getElementById("castBloodType"),
+    socialX: document.getElementById("castSocialX"),
+    socialInstagram: document.getElementById("castSocialInstagram"),
+    socialTikTok: document.getElementById("castSocialTikTok"),
+    socialLine: document.getElementById("castSocialLine"),
+    qaQuestion: document.getElementById("qaQuestion"),
+    qaAnswer: document.getElementById("qaAnswer"),
+    addQaButton: document.getElementById("addQaButton"),
+    qaList: document.getElementById("qaAdminList"),
     pokepalaUrl: document.getElementById("pokepalaUrl"),
     order: document.getElementById("castOrder"),
     visible: document.getElementById("castVisible"),
@@ -56,6 +66,7 @@
     list: document.getElementById("pickupNewsList")
   };
   let currentBlogs = [];
+  let currentQa = [];
   let pickupNews = CLOVER.loadPickupNews ? CLOVER.loadPickupNews() : [];
 
   function showAdminPanel(panel) {
@@ -124,6 +135,12 @@
       title: "",
       message: "",
       profile: "",
+      birthday: "",
+      age: "",
+      height: "",
+      bloodType: "",
+      qa: [],
+      sns: {},
       days: [],
       visible: true,
       order: casts.length + 1,
@@ -152,8 +169,14 @@
     fields.name.value = cast.name;
     fields.kana.value = cast.kana;
     fields.title.value = cast.title;
-    fields.message.value = cast.message;
-    fields.profile.value = cast.profile || "";
+    fields.birthday.value = cast.birthday || "";
+    fields.age.value = cast.age || "";
+    fields.height.value = cast.height || "";
+    fields.bloodType.value = cast.bloodType || "";
+    fields.socialX.value = cast.sns?.x || "";
+    fields.socialInstagram.value = cast.sns?.instagram || "";
+    fields.socialTikTok.value = cast.sns?.tiktok || "";
+    fields.socialLine.value = cast.sns?.line || "";
     fields.pokepalaUrl.value = cast.pokepalaUrl || "";
     fields.order.value = cast.order;
     fields.visible.checked = cast.visible;
@@ -163,11 +186,31 @@
     fields.blogTitle.value = "";
     fields.blogUrl.value = "";
     currentBlogs = Array.isArray(cast.blogs) ? [...cast.blogs] : [];
+    currentQa = Array.isArray(cast.qa) ? [...cast.qa] : [];
     form.querySelectorAll('input[name="days"]').forEach((input) => {
       input.checked = cast.days.includes(input.value);
     });
     updatePhotoPreview(cast.photo, cast.name);
     renderBlogList();
+    renderQaList();
+  }
+
+  function renderQaList() {
+    fields.qaList.innerHTML = currentQa.length
+      ? currentQa
+          .map(
+            (item) => `
+              <div class="blog-admin-item qa-admin-item">
+                <span>
+                  <strong>Q. ${CLOVER.escapeHtml(item.question || "質問未入力")}</strong>
+                  <small>A. ${CLOVER.escapeHtml(item.answer || "回答未入力")}</small>
+                </span>
+                <button class="button danger-button" type="button" data-qa-delete="${CLOVER.escapeHtml(item.id)}">削除</button>
+              </div>
+            `
+          )
+          .join("")
+      : `<p class="admin-empty">Q&Aはありません</p>`;
   }
 
   function renderBlogList() {
@@ -249,8 +292,19 @@
       name: fields.name.value.trim(),
       kana: fields.kana.value.trim(),
       title: fields.title.value.trim(),
-      message: fields.message.value.trim(),
-      profile: fields.profile.value.trim(),
+      message: "",
+      profile: "",
+      birthday: fields.birthday.value.trim(),
+      age: fields.age.value.trim(),
+      height: fields.height.value.trim(),
+      bloodType: fields.bloodType.value,
+      sns: {
+        x: fields.socialX.value.trim(),
+        instagram: fields.socialInstagram.value.trim(),
+        tiktok: fields.socialTikTok.value.trim(),
+        line: fields.socialLine.value.trim()
+      },
+      qa: currentQa,
       pokepalaUrl: fields.pokepalaUrl.value.trim(),
       order: Number(fields.order.value) || casts.length + 1,
       visible: fields.visible.checked,
@@ -336,6 +390,27 @@
     updatePhotoPreview("", fields.name.value);
   });
 
+  fields.addQaButton.addEventListener("click", () => {
+    const question = fields.qaQuestion.value.trim();
+    const answer = fields.qaAnswer.value.trim();
+    if (!question || !answer) {
+      setStatus("Q&Aの質問と回答を入力してください");
+      return;
+    }
+    currentQa = [
+      ...currentQa,
+      {
+        id: `qa-${Date.now()}`,
+        question,
+        answer
+      }
+    ];
+    fields.qaQuestion.value = "";
+    fields.qaAnswer.value = "";
+    renderQaList();
+    setStatus("Q&Aを追加しました。保存してください");
+  });
+
   document.getElementById("addBlogButton").addEventListener("click", () => {
     const title = fields.blogTitle.value.trim();
     const url = fields.blogUrl.value.trim();
@@ -392,6 +467,14 @@
     pickupNews = CLOVER.savePickupNews(pickupNews.filter((item) => item.id !== button.dataset.pickupDelete));
     renderPickupNewsList();
     setPickupStatus("NEWSを削除しました");
+  });
+
+  fields.qaList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-qa-delete]");
+    if (!button) return;
+    currentQa = currentQa.filter((item) => item.id !== button.dataset.qaDelete);
+    renderQaList();
+    setStatus("Q&Aを削除しました。保存してください");
   });
 
   fields.blogList.addEventListener("click", (event) => {
