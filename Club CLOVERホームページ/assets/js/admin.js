@@ -53,8 +53,17 @@
     socialInstagram: document.getElementById("settingSocialInstagram"),
     socialTikTok: document.getElementById("settingSocialTikTok"),
     socialLine: document.getElementById("settingSocialLine"),
-    priceLabels: [0, 1, 2, 3].map((index) => document.getElementById(`priceLabel${index}`)),
-    priceValues: [0, 1, 2, 3].map((index) => document.getElementById(`priceValue${index}`))
+    recruitHeroText: document.getElementById("settingRecruitHeroText"),
+    recruitEmail: document.getElementById("settingRecruitEmail"),
+    recruitCastTime: document.getElementById("settingRecruitCastTime"),
+    recruitCastPay: document.getElementById("settingRecruitCastPay"),
+    recruitCastBenefit: document.getElementById("settingRecruitCastBenefit"),
+    recruitStaffTime: document.getElementById("settingRecruitStaffTime"),
+    recruitStaffPay: document.getElementById("settingRecruitStaffPay"),
+    recruitStaffWork: document.getElementById("settingRecruitStaffWork"),
+    recruitNote: document.getElementById("settingRecruitNote"),
+    priceList: document.getElementById("priceAdminList"),
+    addPriceButton: document.getElementById("addPriceButton")
   };
   const pickupFields = {
     date: document.getElementById("pickupDate"),
@@ -67,6 +76,7 @@
   };
   let currentBlogs = [];
   let currentQa = [];
+  let currentPrices = [];
   let pickupNews = CLOVER.loadPickupNews ? CLOVER.loadPickupNews() : [];
 
   function showAdminPanel(panel) {
@@ -100,30 +110,62 @@
     }, 2200);
   }
 
+  function renderPriceList() {
+    if (!siteFields.priceList) return;
+    siteFields.priceList.innerHTML = currentPrices.length
+      ? currentPrices
+          .map(
+            (price) => `
+              <div class="blog-admin-item price-admin-item" data-price-id="${CLOVER.escapeHtml(price.id)}">
+                <label>
+                  <span>料金項目</span>
+                  <input data-price-label type="text" value="${CLOVER.escapeHtml(price.label)}" placeholder="例: 60分">
+                </label>
+                <label>
+                  <span>内容</span>
+                  <input data-price-value type="text" value="${CLOVER.escapeHtml(price.value)}" placeholder="例: 20:00〜21:00 5,000円">
+                </label>
+                <button class="button danger-button" type="button" data-price-delete="${CLOVER.escapeHtml(price.id)}">削除</button>
+              </div>
+            `
+          )
+          .join("")
+      : `<p class="admin-empty">料金項目はありません</p>`;
+  }
+
+  function syncPriceInputs() {
+    if (!siteFields.priceList) return;
+    currentPrices = Array.from(siteFields.priceList.querySelectorAll("[data-price-id]")).map((item) => ({
+      id: item.dataset.priceId,
+      label: item.querySelector("[data-price-label]")?.value.trim() || "",
+      value: item.querySelector("[data-price-value]")?.value.trim() || ""
+    }));
+  }
+
   function fillSiteForm() {
     const settings = CLOVER.loadSettings();
     Object.entries(siteFields).forEach(([key, input]) => {
-      if (Array.isArray(input)) return;
+      if (key === "priceList" || key === "addPriceButton") return;
       if (!input) return;
       input.value = settings[key] || "";
     });
-    settings.prices.forEach((price, index) => {
-      siteFields.priceLabels[index].value = price.label;
-      siteFields.priceValues[index].value = price.value;
-    });
+    currentPrices = settings.prices.map((price, index) => ({
+      id: price.id || `price-${Date.now()}-${index}`,
+      label: price.label || "",
+      value: price.value || ""
+    }));
+    renderPriceList();
   }
 
   function readSiteForm() {
+    syncPriceInputs();
     const settings = {};
     Object.entries(siteFields).forEach(([key, input]) => {
-      if (Array.isArray(input)) return;
+      if (key === "priceList" || key === "addPriceButton") return;
       if (!input) return;
       settings[key] = input.value.trim();
     });
-    settings.prices = siteFields.priceLabels.map((input, index) => ({
-      label: input.value.trim(),
-      value: siteFields.priceValues[index].value.trim()
-    }));
+    settings.prices = currentPrices.filter((price) => price.label || price.value);
     return settings;
   }
 
@@ -187,9 +229,6 @@
     fields.blogUrl.value = "";
     currentBlogs = Array.isArray(cast.blogs) ? [...cast.blogs] : [];
     currentQa = Array.isArray(cast.qa) ? [...cast.qa] : [];
-    form.querySelectorAll('input[name="days"]').forEach((input) => {
-      input.checked = cast.days.includes(input.value);
-    });
     updatePhotoPreview(cast.photo, cast.name);
     renderBlogList();
     renderQaList();
@@ -238,14 +277,13 @@
         const photo = cast.photo
           ? `<img src="${cast.photo}" alt="${CLOVER.escapeHtml(cast.name)}">`
           : `<span class="placeholder-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>`;
-        const days = cast.days.map((day) => CLOVER.dayLabels[day]).join(" ");
         const latestBlog = CLOVER.recentBlogPosts([cast])[0];
         return `
           <button class="admin-cast-item ${cast.id === selectedId ? "is-active" : ""}" type="button" data-id="${cast.id}">
             <span class="admin-thumb ${cast.photo ? "has-photo" : ""}">${photo}</span>
             <span>
               <strong>${CLOVER.escapeHtml(cast.name || "未入力")}</strong>
-              <small>${CLOVER.escapeHtml(latestBlog ? `ブログ ${latestBlog.date}` : days || "出勤未定")}</small>
+              <small>${CLOVER.escapeHtml(latestBlog ? `ブログ ${latestBlog.date}` : cast.kana || "プロフィール登録済み")}</small>
             </span>
             <em>${cast.visible ? "表示" : "非表示"}</em>
           </button>
@@ -311,7 +349,7 @@
       createdAt: selectedCast().createdAt || CLOVER.dateKey(new Date()),
       photo: fields.photoData.value,
       blogs: currentBlogs,
-      days: Array.from(form.querySelectorAll('input[name="days"]:checked')).map((input) => input.value)
+      days: []
     };
   }
 
@@ -340,6 +378,30 @@
     fillSiteForm();
     setSiteStatus("サイト内容を保存しました");
   });
+
+  if (siteFields.priceList) {
+    siteFields.priceList.addEventListener("input", syncPriceInputs);
+    siteFields.priceList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-price-delete]");
+      if (!button) return;
+      syncPriceInputs();
+      currentPrices = currentPrices.filter((price) => price.id !== button.dataset.priceDelete);
+      renderPriceList();
+      setSiteStatus("料金項目を削除しました。保存してください");
+    });
+  }
+
+  if (siteFields.addPriceButton) {
+    siteFields.addPriceButton.addEventListener("click", () => {
+      syncPriceInputs();
+      currentPrices = [
+        ...currentPrices,
+        { id: `price-${Date.now()}`, label: "", value: "" }
+      ];
+      renderPriceList();
+      setSiteStatus("料金項目を追加しました。入力後に保存してください");
+    });
+  }
 
   list.addEventListener("click", (event) => {
     const button = event.target.closest("[data-id]");

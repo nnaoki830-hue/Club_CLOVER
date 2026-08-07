@@ -86,11 +86,19 @@
       if (value) element.textContent = value;
     });
 
-    settings.prices.forEach((price, index) => {
-      const label = document.querySelector(`[data-price-label="${index}"]`);
-      const value = document.querySelector(`[data-price-value="${index}"]`);
-      if (label) label.textContent = price.label;
-      if (value) value.textContent = price.value;
+    document.querySelectorAll("[data-price-board]").forEach((board) => {
+      board.innerHTML = settings.prices.length
+        ? settings.prices
+            .map(
+              (price) => `
+                <div class="price-row">
+                  <span>${CLOVER.escapeHtml(price.label)}</span>
+                  <strong>${CLOVER.escapeHtml(price.value)}</strong>
+                </div>
+              `
+            )
+            .join("")
+        : `<p class="empty-state">料金は店舗へお問い合わせください</p>`;
     });
 
     document.querySelectorAll("[data-social]").forEach((link) => {
@@ -108,11 +116,11 @@
       link.hidden = !settings.reservationEmail;
       if (settings.reservationEmail) link.href = reservationMailto(settings.reservationEmail);
     });
-  }
 
-  function formatDays(days) {
-    if (!days.length) return "出勤未定";
-    return days.map((day) => CLOVER.dayLabels[day] || day).join(" / ");
+    document.querySelectorAll("[data-recruit-apply]").forEach((link) => {
+      link.hidden = !settings.recruitEmail;
+      if (settings.recruitEmail) link.href = recruitMailto(settings.recruitEmail, link.dataset.recruitApply);
+    });
   }
 
   function renderPlaceholderLogo() {
@@ -216,7 +224,6 @@
           <p>${CLOVER.escapeHtml(cast.title)}</p>
           <h3>${CLOVER.escapeHtml(cast.name)}</h3>
           <span>${CLOVER.escapeHtml(cast.kana)}</span>
-          <small>${CLOVER.escapeHtml(formatDays(cast.days))}</small>
           ${renderCastDetails(cast)}
           ${renderCastQa(cast)}
           ${blogLink}
@@ -263,7 +270,7 @@
             ...cast,
             scheduleTime: scheduleLabel(daySchedule[cast.id])
           }))
-      : casts.filter((cast) => cast.days.includes(todayKey));
+      : [];
 
     if (todayDate) {
       todayDate.textContent = `${now.getMonth() + 1}/${now.getDate()} ${CLOVER.dayLabels[todayKey]}曜日`;

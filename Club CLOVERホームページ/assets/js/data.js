@@ -84,7 +84,7 @@
     heroEyebrow: "KANAGAWA / NIGHT LOUNGE",
     heroCopy: "赤く艶めくソファとクリスタルの光が迎える、上質で華やかなナイトラウンジ。",
     newsText: "Club CLOVER 公式ホームページをリニューアル準備中。最新の出勤情報とブログ更新をご確認ください。",
-    castLinkText: "在籍キャストのプロフィール、出勤曜日、ポケパラブログはこちらからご確認いただけます。",
+    castLinkText: "在籍キャストのプロフィール、SNS、ポケパラブログはこちらからご確認いただけます。",
     prices: [
       { label: "SET 60min", value: "お問い合わせください" },
       { label: "延長 30min", value: "お問い合わせください" },
@@ -103,7 +103,16 @@
     socialX: "https://x.com/clubclover",
     socialInstagram: "https://www.instagram.com/clubclover/",
     socialTikTok: "https://www.tiktok.com/@clubclover",
-    socialLine: "https://line.me/R/ti/p/@clubclover"
+    socialLine: "https://line.me/R/ti/p/@clubclover",
+    recruitHeroText: "キャスト・黒服スタッフともに募集中。未経験の方も、経験を活かしたい方も、華やかな空間で自分らしく働けます。",
+    recruitEmail: "recruit@club-clover.jp",
+    recruitCastTime: "20:00 - LAST / 週1日から相談可",
+    recruitCastPay: "面接時にご案内",
+    recruitCastBenefit: "未経験歓迎、日払い相談、送り相談",
+    recruitStaffTime: "18:00 - LAST / シフト相談可",
+    recruitStaffPay: "面接時にご案内",
+    recruitStaffWork: "ホール業務、キャストサポート、店舗運営補助",
+    recruitNote: "20歳未満の方の応募はご遠慮ください。勤務条件の詳細は面接時にご案内します。"
   };
 
   const defaultPickupNews = [
@@ -280,17 +289,25 @@
     return schedule[key];
   }
 
+  function normalizePrices(prices) {
+    const source = Array.isArray(prices) ? prices : defaultSiteSettings.prices;
+    const normalized = source
+      .map((price, index) => ({
+        id: price?.id || `price-${index + 1}`,
+        label: price?.label || "",
+        value: price?.value || ""
+      }))
+      .filter((price) => price.label || price.value);
+    return normalized.length ? normalized : clone(defaultSiteSettings.prices);
+  }
+
   function normalizeSettings(settings) {
     const source = settings && typeof settings === "object" ? settings : {};
-    const prices = Array.isArray(source.prices) ? source.prices : defaultSiteSettings.prices;
 
     return {
       ...defaultSiteSettings,
       ...source,
-      prices: defaultSiteSettings.prices.map((price, index) => ({
-        label: prices[index]?.label || price.label,
-        value: prices[index]?.value || price.value
-      }))
+      prices: normalizePrices(source.prices)
     };
   }
 

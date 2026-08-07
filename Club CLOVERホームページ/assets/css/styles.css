@@ -1537,6 +1537,27 @@ textarea {
   grid-template-columns: 76px 1fr auto;
 }
 
+.price-admin-item {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.price-admin-item label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.price-admin-item label span {
+  color: var(--gold-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.form-actions.align-left {
+  justify-content: flex-start;
+}
+
 .admin-news-thumb {
   width: 76px;
   aspect-ratio: 16 / 10;
@@ -1566,6 +1587,8 @@ textarea {
 .admin-page[data-active-admin="shop"] [data-admin-section="shop"],
 .admin-page[data-active-admin="prices"] .site-form,
 .admin-page[data-active-admin="prices"] [data-admin-section="prices"],
+.admin-page[data-active-admin="recruit"] .site-form,
+.admin-page[data-active-admin="recruit"] [data-admin-section="recruit"],
 .admin-page[data-active-admin="sns"] .site-form,
 .admin-page[data-active-admin="sns"] [data-admin-section="sns"] {
   display: grid;

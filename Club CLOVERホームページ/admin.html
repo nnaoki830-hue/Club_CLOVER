@@ -27,6 +27,7 @@
         <button class="button button-ghost" type="button" data-admin-tab="top">トップ編集</button>
         <button class="button button-ghost" type="button" data-admin-tab="shop">店舗情報</button>
         <button class="button button-ghost" type="button" data-admin-tab="prices">料金</button>
+        <button class="button button-ghost" type="button" data-admin-tab="recruit">求人情報</button>
         <button class="button button-ghost" type="button" data-admin-tab="sns">SNS</button>
         <button class="button button-ghost" type="button" data-admin-tab="cast">キャスト登録</button>
         <a class="button button-ghost" href="schedule.html">出勤入力</a>
@@ -102,15 +103,9 @@
               <p class="section-kicker">SYSTEM</p>
               <h2 id="price-admin-title">料金システム</h2>
             </div>
-            <div class="form-grid">
-              <label><span>料金1 項目</span><input id="priceLabel0" type="text"></label>
-              <label><span>料金1 内容</span><input id="priceValue0" type="text"></label>
-              <label><span>料金2 項目</span><input id="priceLabel1" type="text"></label>
-              <label><span>料金2 内容</span><input id="priceValue1" type="text"></label>
-              <label><span>料金3 項目</span><input id="priceLabel2" type="text"></label>
-              <label><span>料金3 内容</span><input id="priceValue2" type="text"></label>
-              <label><span>料金4 項目</span><input id="priceLabel3" type="text"></label>
-              <label><span>料金4 内容</span><input id="priceValue3" type="text"></label>
+            <div id="priceAdminList" class="blog-admin-list price-admin-list"></div>
+            <div class="form-actions align-left">
+              <button class="button button-ghost" type="button" id="addPriceButton">料金項目を追加</button>
             </div>
             <label>
               <span>店舗紹介タイトル</span>
@@ -119,6 +114,30 @@
             <label>
               <span>店舗紹介文</span>
               <textarea id="settingSystemText" rows="3" maxlength="180"></textarea>
+            </label>
+          </section>
+
+          <section class="blog-admin" data-admin-section="recruit" aria-labelledby="recruit-admin-title">
+            <div class="section-heading compact">
+              <p class="section-kicker">RECRUIT</p>
+              <h2 id="recruit-admin-title">求人情報</h2>
+            </div>
+            <label>
+              <span>求人トップ文</span>
+              <textarea id="settingRecruitHeroText" rows="3" maxlength="220"></textarea>
+            </label>
+            <div class="form-grid">
+              <label><span>応募先メール</span><input id="settingRecruitEmail" type="text" placeholder="recruit@example.com"></label>
+              <label><span>キャスト 勤務時間</span><input id="settingRecruitCastTime" type="text"></label>
+              <label><span>キャスト 給与</span><input id="settingRecruitCastPay" type="text"></label>
+              <label><span>キャスト 待遇</span><input id="settingRecruitCastBenefit" type="text"></label>
+              <label><span>黒服 勤務時間</span><input id="settingRecruitStaffTime" type="text"></label>
+              <label><span>黒服 給与</span><input id="settingRecruitStaffPay" type="text"></label>
+              <label><span>黒服 仕事内容</span><input id="settingRecruitStaffWork" type="text"></label>
+            </div>
+            <label>
+              <span>求人注意書き</span>
+              <textarea id="settingRecruitNote" rows="3" maxlength="220"></textarea>
             </label>
           </section>
 
@@ -291,16 +310,6 @@
             </div>
           </div>
 
-          <fieldset class="day-fieldset">
-            <legend>出勤曜日</legend>
-            <label><input type="checkbox" name="days" value="mon">月</label>
-            <label><input type="checkbox" name="days" value="tue">火</label>
-            <label><input type="checkbox" name="days" value="wed">水</label>
-            <label><input type="checkbox" name="days" value="thu">木</label>
-            <label><input type="checkbox" name="days" value="fri">金</label>
-            <label><input type="checkbox" name="days" value="sat">土</label>
-            <label><input type="checkbox" name="days" value="sun">日</label>
-          </fieldset>
 
           <label class="toggle-row">
             <input id="castVisible" name="visible" type="checkbox" checked>
