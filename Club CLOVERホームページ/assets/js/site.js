@@ -7,6 +7,7 @@
   let slideTimer;
   let autoBlogPosts = [];
   let autoBlogLoading = false;
+  let newsExpanded = false;
 
   if (intro) {
     const finishIntro = () => {
@@ -599,27 +600,36 @@
   }
 
 
+  function newsCard(item) {
+    return `
+      <article class="news-card">
+        <span class="news-date">${CLOVER.escapeHtml(formatBlogDate(item.date))}</span>
+        ${item.image ? `<img class="news-image" src="${item.image}" alt="">` : ""}
+        <span>
+          <em>${CLOVER.escapeHtml(item.label)}</em>
+          <strong>${CLOVER.escapeHtml(item.title)}</strong>
+          ${item.text ? `<small>${CLOVER.escapeHtml(item.text)}</small>` : ""}
+        </span>
+      </article>
+    `;
+  }
+
   function renderNews() {
     const newsTimeline = document.getElementById("newsTimeline");
     if (!newsTimeline || !CLOVER.recentNews) return;
     const news = CLOVER.recentNews(CLOVER.loadCasts());
+    const visibleNews = newsExpanded ? news : news.slice(0, 5);
+    const hiddenCount = Math.max(news.length - 5, 0);
 
     newsTimeline.innerHTML = news.length
-      ? news
-          .map(
-            (item) => `
-              <article class="news-card">
-                <span class="news-date">${CLOVER.escapeHtml(formatBlogDate(item.date))}</span>
-                ${item.image ? `<img class="news-image" src="${item.image}" alt="">` : ""}
-                <span>
-                  <em>${CLOVER.escapeHtml(item.label)}</em>
-                  <strong>${CLOVER.escapeHtml(item.title)}</strong>
-                  ${item.text ? `<small>${CLOVER.escapeHtml(item.text)}</small>` : ""}
-                </span>
-              </article>
-            `
-          )
-          .join("")
+      ? `
+          ${visibleNews.map(newsCard).join("")}
+          ${hiddenCount ? `
+            <button class="news-more-button" type="button" data-news-toggle aria-expanded="${String(newsExpanded)}">
+              ${newsExpanded ? "閉じる" : `もっと見る（あと${hiddenCount}件）`}
+            </button>
+          ` : ""}
+        `
       : `<p class="empty-state">30日以内のお知らせはありません</p>`;
   }
 
@@ -640,6 +650,13 @@
   });
 
   document.addEventListener("click", (event) => {
+    const newsToggle = event.target.closest?.("[data-news-toggle]");
+    if (newsToggle) {
+      newsExpanded = !newsExpanded;
+      renderNews();
+      return;
+    }
+
     const card = event.target.closest?.(".cast-card[data-profile-url]");
     if (!card || event.target.closest("a, button")) return;
     window.location.href = card.dataset.profileUrl;

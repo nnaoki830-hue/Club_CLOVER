@@ -316,7 +316,7 @@
                   <strong>${CLOVER.escapeHtml(item.title || "ピックアップ")}</strong>
                   <small>${CLOVER.escapeHtml(item.date)} / ${CLOVER.escapeHtml(item.text)}</small>
                 </span>
-                <button class="button danger-button" type="button" data-pickup-delete="${CLOVER.escapeHtml(item.id)}">削除</button>
+                <button class="button danger-button" type="button" data-pickup-delete="${CLOVER.escapeHtml(item.id)}">ピックアップを削除</button>
               </div>
             `
           )
@@ -555,6 +555,7 @@
   pickupFields.list.addEventListener("click", (event) => {
     const button = event.target.closest("[data-pickup-delete]");
     if (!button) return;
+    if (!window.confirm("このピックアップ投稿を削除しますか？")) return;
     pickupNews = CLOVER.savePickupNews(pickupNews.filter((item) => item.id !== button.dataset.pickupDelete));
     renderPickupNewsList();
     setPickupStatus("NEWSを削除しました");

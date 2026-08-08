@@ -2443,3 +2443,26 @@ textarea {
     padding-top: 7rem;
   }
 }
+
+
+.news-more-button {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(244, 210, 138, 0.32);
+  border-radius: var(--radius);
+  background: rgba(194, 31, 88, 0.16);
+  color: var(--gold-soft);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.news-more-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(244, 210, 138, 0.68);
+  background: rgba(194, 31, 88, 0.28);
+}
