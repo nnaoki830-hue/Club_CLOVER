@@ -214,6 +214,16 @@
     return value.replace(/^http:\/\//, "https://");
   }
 
+  function normalizeImageUrl(url) {
+    const value = String(url || "").trim();
+    if (!value) return "";
+    if (value.startsWith("//")) return `https:${value}`;
+    if (value.startsWith("http://")) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(value.replace(/^http:\/\//, ""))}`;
+    }
+    return value;
+  }
+
   function pokeparaRssUrl(url) {
     const match = String(url || "").match(/\/gal\/(\d+)\//);
     return match ? `https://www.pokepara.jp/rss/gal/${match[1]}/rss2.xml` : "";
@@ -253,7 +263,27 @@
   function firstImageFromHtml(value) {
     const holder = document.createElement("div");
     holder.innerHTML = String(value || "");
-    return normalizeExternalUrl(holder.querySelector("img")?.getAttribute("src") || "");
+    const image = holder.querySelector("img");
+    const linkedLargeImage = image?.closest("a")?.getAttribute("href") || "";
+    return normalizeImageUrl(linkedLargeImage || image?.getAttribute("src") || "");
+  }
+
+  function itemImageUrl(item, content) {
+    if (typeof item.querySelector === "function") {
+      const media = item.querySelector("thumbnail, content");
+      return normalizeImageUrl(
+        media?.getAttribute("url") ||
+        item.querySelector("enclosure")?.getAttribute("url") ||
+        firstImageFromHtml(content)
+      );
+    }
+
+    return normalizeImageUrl(
+      item.thumbnail ||
+      item.enclosure?.link ||
+      item.enclosure?.url ||
+      firstImageFromHtml(content)
+    );
   }
 
   function shortenText(value, length = 120) {
@@ -270,7 +300,7 @@
     const link = normalizeExternalUrl(item.link || item.querySelector?.("link")?.textContent || "");
     const pubDate = item.pubDate || item.querySelector?.("pubDate")?.textContent || "";
     const content = item.content || item.description || item.querySelector?.("description")?.textContent || item.querySelector?.("content\\:encoded")?.textContent || "";
-    const thumbnail = normalizeExternalUrl(item.thumbnail || item.enclosure?.link || firstImageFromHtml(content));
+    const thumbnail = itemImageUrl(item, content);
     return {
       id: `pokepara-${cast.id}-${index}-${link}`,
       title,
