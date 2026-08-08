@@ -2239,3 +2239,68 @@ textarea {
     height: 2.2rem;
   }
 }
+
+.cast-card[data-profile-url] {
+  cursor: pointer;
+}
+
+.cast-card[data-profile-url]:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 4px;
+}
+
+.cast-profile-link {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 1rem;
+  color: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.cast-profile-link::after {
+  content: ">";
+  margin-left: 0.45rem;
+  color: var(--pink);
+}
+
+.cast-profile-detail {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(280px, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+.cast-profile-photo {
+  min-height: 520px;
+}
+
+.cast-profile-content h1 {
+  margin: 0.2rem 0 0.35rem;
+  font-size: clamp(2.4rem, 7vw, 5.8rem);
+  line-height: 0.95;
+}
+
+.cast-profile-content > span {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 1.4rem;
+}
+
+.cast-profile-blogs {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .cast-profile-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .cast-profile-photo {
+    min-height: 420px;
+  }
+}

@@ -220,15 +220,18 @@
   }
 
   async function fetchRssText(url) {
+    const jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
     try {
-      const response = await fetch(url);
-      if (response.ok) return response.text();
+      const response = await fetch(jsonUrl);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "ok" && Array.isArray(data.items)) return data;
+      }
     } catch (error) {
-      // Some RSS feeds do not allow direct browser access; the fallback keeps display automatic on static hosting.
+      // Keep trying with the original RSS feed below.
     }
 
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const response = await fetch(proxyUrl);
+    const response = await fetch(url);
     if (!response.ok) throw new Error("RSSを取得できませんでした");
     return response.text();
   }
@@ -241,26 +244,31 @@
     return `${date.getFullYear()}-${month}-${day}`;
   }
 
-  function parsePokeparaRss(xmlText, cast) {
-    const documentXml = new DOMParser().parseFromString(xmlText, "application/xml");
-    return Array.from(documentXml.querySelectorAll("item"))
-      .map((item, index) => {
-        const title = item.querySelector("title")?.textContent || "";
-        const link = normalizeExternalUrl(item.querySelector("link")?.textContent || "");
-        const pubDate = item.querySelector("pubDate")?.textContent || "";
-        return {
-          id: `pokepara-${cast.id}-${index}-${link}`,
-          title,
-          url: link,
-          date: toDateKey(pubDate),
-          castId: cast.id,
-          castName: cast.name,
-          castKana: cast.kana,
-          castPhoto: cast.photo,
-          pokepalaUrl: cast.pokepalaUrl,
-          source: "pokepara"
-        };
-      })
+  function blogObjectFromRss(item, index, cast) {
+    const title = item.title || item.querySelector?.("title")?.textContent || "";
+    const link = normalizeExternalUrl(item.link || item.querySelector?.("link")?.textContent || "");
+    const pubDate = item.pubDate || item.querySelector?.("pubDate")?.textContent || "";
+    return {
+      id: `pokepara-${cast.id}-${index}-${link}`,
+      title,
+      url: link,
+      date: toDateKey(pubDate),
+      castId: cast.id,
+      castName: cast.name,
+      castKana: cast.kana,
+      castPhoto: cast.photo,
+      pokepalaUrl: cast.pokepalaUrl,
+      source: "pokepara"
+    };
+  }
+
+  function parsePokeparaRss(feedData, cast) {
+    const items = typeof feedData === "string"
+      ? Array.from(new DOMParser().parseFromString(feedData, "application/xml").querySelectorAll("item"))
+      : feedData.items || [];
+
+    return items
+      .map((item, index) => blogObjectFromRss(item, index, cast))
       .filter((blog) => blog.title && blog.url && blog.date);
   }
 
@@ -312,9 +320,14 @@
       autoBlogPosts = posts.flat();
       renderBlogs();
       renderCasts({ loadBlogs: false });
+      renderCastProfileDetail({ loadBlogs: false });
     } finally {
       autoBlogLoading = false;
     }
+  }
+
+  function castProfileUrl(cast) {
+    return `cast-profile.html?id=${encodeURIComponent(cast.id)}`;
   }
 
   function renderCastCard(cast) {
@@ -329,7 +342,7 @@
         : "";
 
     return `
-      <article class="cast-card">
+      <article class="cast-card" data-profile-url="${CLOVER.escapeHtml(castProfileUrl(cast))}" tabindex="0">
         <div class="cast-photo ${cast.photo ? "has-photo" : ""}">${photo}${renderCastSocialLinks(cast)}</div>
         <div class="cast-body">
           <p>${CLOVER.escapeHtml(cast.title)}</p>
@@ -337,6 +350,7 @@
           <span>${CLOVER.escapeHtml(cast.kana)}</span>
           ${renderCastDetails(cast)}
           ${renderCastQa(cast)}
+          <a class="cast-profile-link" href="${CLOVER.escapeHtml(castProfileUrl(cast))}">プロフィールを見る</a>
           ${blogLink}
         </div>
       </article>
@@ -432,6 +446,65 @@
       : `<p class="empty-state">30日以内のブログ更新はありません</p>`;
   }
 
+  function selectedCastId() {
+    return new URLSearchParams(window.location.search).get("id") || "";
+  }
+
+  function renderCastProfileDetail(options = {}) {
+    const detail = document.getElementById("castProfileDetail");
+    if (!detail) return;
+
+    const casts = CLOVER.loadCasts().filter((cast) => cast.visible);
+    const cast = casts.find((item) => item.id === selectedCastId()) || casts[0];
+    if (!cast) {
+      detail.innerHTML = `<p class="empty-state">プロフィールはまだ登録されていません</p>`;
+      return;
+    }
+
+    const photo = cast.photo
+      ? `<img src="${cast.photo}" alt="${CLOVER.escapeHtml(cast.name)}">`
+      : renderPlaceholderLogo();
+    const blogs = allRecentBlogPosts([cast]).slice(0, 5);
+    const blogList = blogs.length
+      ? blogs.map((blog) => `
+          <a class="blog-card" href="${CLOVER.escapeHtml(blog.url)}" target="_blank" rel="noopener">
+            <span class="blog-date">${CLOVER.escapeHtml(formatBlogDate(blog.date))}</span>
+            <span>
+              <strong>${CLOVER.escapeHtml(blog.title)}</strong>
+              <small>Pokepala</small>
+            </span>
+          </a>
+        `).join("")
+      : `<p class="empty-state">30日以内のブログ更新はありません</p>`;
+
+    document.title = `${cast.name} | Club CLOVER`;
+    detail.innerHTML = `
+      <div class="cast-profile-visual">
+        <div class="cast-photo cast-profile-photo ${cast.photo ? "has-photo" : ""}">${photo}${renderCastSocialLinks(cast)}</div>
+      </div>
+      <div class="cast-profile-content">
+        <p class="section-kicker">CAST PROFILE</p>
+        <h1>${CLOVER.escapeHtml(cast.name)}</h1>
+        <span>${CLOVER.escapeHtml(cast.kana)}</span>
+        ${renderCastDetails(cast)}
+        ${renderCastQa(cast)}
+        ${cast.pokepalaUrl ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(normalizeExternalUrl(cast.pokepalaUrl))}" target="_blank" rel="noopener">ポケパラを見る</a>` : ""}
+      </div>
+      <section class="cast-profile-blogs" aria-label="ブログ更新">
+        <div class="section-heading compact">
+          <p class="section-kicker">BLOG</p>
+          <h2>ブログ更新</h2>
+        </div>
+        <div class="blog-list">${blogList}</div>
+      </section>
+    `;
+
+    if (options.loadBlogs !== false) {
+      loadPokeparaBlogs(casts);
+    }
+  }
+
+
   function renderNews() {
     const newsTimeline = document.getElementById("newsTimeline");
     if (!newsTimeline || !CLOVER.recentNews) return;
@@ -460,11 +533,26 @@
   renderNews();
   renderBlogs();
   renderCasts();
+  renderCastProfileDetail();
 
   document.addEventListener("clover:data-sync", () => {
     applySiteSettings();
     renderNews();
     renderBlogs();
     renderCasts();
+    renderCastProfileDetail();
+  });
+
+  document.addEventListener("click", (event) => {
+    const card = event.target.closest?.(".cast-card[data-profile-url]");
+    if (!card || event.target.closest("a, button")) return;
+    window.location.href = card.dataset.profileUrl;
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const card = event.target.closest?.(".cast-card[data-profile-url]");
+    if (!card || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    window.location.href = card.dataset.profileUrl;
   });
 })();

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CAST PROFILE | Club CLOVER</title>
+    <meta name="description" content="Club CLOVERのキャストプロフィール。">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body class="cast-page cast-profile-page">
+    <header class="site-header">
+      <a class="brand" href="index.html#top" aria-label="Club CLOVER トップへ">
+        <span class="brand-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>
+      </a>
+      <nav class="site-nav" aria-label="メインメニュー">
+        <a href="cast.html">CAST</a>
+        <a href="index.html#system">SYSTEM</a>
+        <a href="index.html#gallery">GALLERY</a>
+        <a href="index.html#access">ACCESS</a>
+        <a href="index.html#reserve">RESERVE</a>
+        <a href="recruit.html">RECRUIT</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="section cast-profile-detail" id="castProfileDetail" aria-live="polite">
+        <p class="empty-state">プロフィールを読み込み中です</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-main">
+          <p>Club CLOVER</p>
+          <small>20歳未満の方の入店および飲酒は法律で禁止されています。</small>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/data.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/cloud.js"></script>
+    <script src="assets/js/site.js"></script>
+  </body>
+</html>
