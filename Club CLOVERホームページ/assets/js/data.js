@@ -3,6 +3,7 @@
   const SETTINGS_KEY = "club-clover-site-settings-v1";
   const SCHEDULE_KEY = "club-clover-schedule-v1";
   const NEWS_KEY = "club-clover-pickup-news-v1";
+  let memoryCasts = null;
 
   const dayLabels = {
     mon: "月",
@@ -192,6 +193,7 @@
   }
 
   function loadCasts() {
+    if (memoryCasts) return clone(memoryCasts);
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) {
@@ -199,17 +201,26 @@
         return clone(defaultCasts);
       }
       const parsed = JSON.parse(saved);
-      return sortCasts(Array.isArray(parsed) ? parsed : defaultCasts);
+      memoryCasts = sortCasts(Array.isArray(parsed) ? parsed : defaultCasts);
+      return clone(memoryCasts);
     } catch (error) {
-      return clone(defaultCasts);
+      return memoryCasts ? clone(memoryCasts) : clone(defaultCasts);
     }
   }
 
   function saveCasts(casts) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sortCasts(casts)));
+    const sorted = sortCasts(casts);
+    memoryCasts = clone(sorted);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+    } catch (error) {
+      console.warn("ブラウザ内保存の上限に達しました。Firebase保存を優先します。", error);
+    }
+    return clone(sorted);
   }
 
   function resetCasts() {
+    memoryCasts = null;
     saveCasts(defaultCasts);
     return clone(defaultCasts);
   }
