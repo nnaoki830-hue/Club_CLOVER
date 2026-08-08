@@ -54,24 +54,32 @@
     };
   }
 
+  function safeLocalSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn("ブラウザ内保存に失敗しました", error);
+    }
+  }
+
   function applyData(data) {
     if (!data || typeof data !== "object") return false;
     let changed = false;
 
-    if (Array.isArray(data.casts) && data.casts.length) {
-      localStorage.setItem(CLOVER.STORAGE_KEY, JSON.stringify(data.casts));
+    if (Array.isArray(data.casts)) {
+      original.saveCasts(data.casts);
       changed = true;
     }
     if (data.settings && Object.keys(data.settings).length) {
-      localStorage.setItem(CLOVER.SETTINGS_KEY, JSON.stringify(data.settings));
+      safeLocalSet(CLOVER.SETTINGS_KEY, JSON.stringify(data.settings));
       changed = true;
     }
     if (data.schedule && typeof data.schedule === "object") {
-      localStorage.setItem(CLOVER.SCHEDULE_KEY, JSON.stringify(data.schedule));
+      safeLocalSet(CLOVER.SCHEDULE_KEY, JSON.stringify(data.schedule));
       changed = true;
     }
     if (Array.isArray(data.news)) {
-      localStorage.setItem(CLOVER.NEWS_KEY, JSON.stringify(data.news));
+      safeLocalSet(CLOVER.NEWS_KEY, JSON.stringify(data.news));
       changed = true;
     }
 
@@ -92,8 +100,16 @@
     }
   }
 
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async function pushNow() {
-    if (pulling) return;
+    let count = 0;
+    while (pulling && count < 20) {
+      await wait(100);
+      count += 1;
+    }
     try {
       await docRef.set(currentData(), { merge: true });
     } catch (error) {

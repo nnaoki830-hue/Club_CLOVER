@@ -1,6 +1,7 @@
 (function () {
   let casts = CLOVER.loadCasts();
   let selectedId = casts[0] ? casts[0].id : "";
+  let isCreatingCast = false;
 
   const form = document.getElementById("castForm");
   const siteForm = document.getElementById("siteForm");
@@ -34,7 +35,11 @@
     blogDate: document.getElementById("blogDate"),
     blogTitle: document.getElementById("blogTitle"),
     blogUrl: document.getElementById("blogUrl"),
-    blogList: document.getElementById("blogAdminList")
+    blogList: document.getElementById("blogAdminList"),
+    submitButton: document.querySelector("#castForm button[type=\"submit\"]"),
+    newButton: document.getElementById("newCastButton"),
+    deleteButton: document.getElementById("deleteCastButton"),
+    editorTitle: document.getElementById("editor-title")
   };
   const siteFields = {
     heroEyebrow: document.getElementById("settingHeroEyebrow"),
@@ -197,6 +202,13 @@
     return casts.find((cast) => cast.id === selectedId) || blankCast();
   }
 
+  function updateCastModeLabel() {
+    if (fields.editorTitle) fields.editorTitle.textContent = isCreatingCast ? "新規キャスト登録" : "キャスト編集";
+    if (fields.submitButton) fields.submitButton.textContent = isCreatingCast ? "新規登録する" : "保存";
+    if (fields.deleteButton) fields.deleteButton.disabled = isCreatingCast;
+    if (fields.newButton) fields.newButton.classList.toggle("is-active", isCreatingCast);
+  }
+
   function updatePhotoPreview(photo, name) {
     fields.photoPreview.classList.toggle("has-photo", Boolean(photo));
     if (photo) {
@@ -207,7 +219,7 @@
   }
 
   function fillForm(cast) {
-    fields.id.value = cast.id;
+    fields.id.value = isCreatingCast ? "" : cast.id;
     fields.name.value = cast.name;
     fields.kana.value = cast.kana;
     fields.title.value = cast.title;
@@ -232,6 +244,7 @@
     updatePhotoPreview(cast.photo, cast.name);
     renderBlogList();
     renderQaList();
+    updateCastModeLabel();
   }
 
   function renderQaList() {
@@ -279,7 +292,7 @@
           : `<span class="placeholder-logo"><img src="assets/images/logo-clover-main.png" alt=""></span>`;
         const latestBlog = CLOVER.recentBlogPosts([cast])[0];
         return `
-          <button class="admin-cast-item ${cast.id === selectedId ? "is-active" : ""}" type="button" data-id="${cast.id}">
+          <button class="admin-cast-item ${!isCreatingCast && cast.id === selectedId ? "is-active" : ""}" type="button" data-id="${cast.id}">
             <span class="admin-thumb ${cast.photo ? "has-photo" : ""}">${photo}</span>
             <span>
               <strong>${CLOVER.escapeHtml(cast.name || "未入力")}</strong>
@@ -319,14 +332,24 @@
   }
 
   function selectCast(id) {
+    isCreatingCast = false;
     selectedId = id;
     fillForm(selectedCast());
     renderList();
   }
 
+  function startNewCast() {
+    isCreatingCast = true;
+    selectedId = "";
+    fillForm(blankCast());
+    renderList();
+    setStatus("新規登録モードです。入力して「新規登録する」を押してください");
+  }
+
   function readForm() {
+    const existing = isCreatingCast ? null : selectedCast();
     return {
-      id: fields.id.value || `cast-${Date.now()}`,
+      id: isCreatingCast ? `cast-${Date.now()}` : fields.id.value,
       name: fields.name.value.trim(),
       kana: fields.kana.value.trim(),
       title: fields.title.value.trim(),
@@ -346,17 +369,22 @@
       pokepalaUrl: fields.pokepalaUrl.value.trim(),
       order: Number(fields.order.value) || casts.length + 1,
       visible: fields.visible.checked,
-      createdAt: selectedCast().createdAt || CLOVER.dateKey(new Date()),
+      createdAt: existing?.createdAt || CLOVER.dateKey(new Date()),
       photo: fields.photoData.value,
       blogs: currentBlogs,
       days: []
     };
   }
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const cast = readForm();
-    const existingIndex = casts.findIndex((item) => item.id === cast.id);
+    if (!cast.name) {
+      setStatus("名前を入力してください");
+      fields.name.focus();
+      return;
+    }
+    const existingIndex = isCreatingCast ? -1 : casts.findIndex((item) => item.id === cast.id);
 
     if (existingIndex >= 0) {
       casts[existingIndex] = cast;
@@ -365,11 +393,16 @@
       casts.push(cast);
     }
 
-    CLOVER.saveCasts(casts);
+    casts = CLOVER.saveCasts(casts);
+    if (window.CLOVER_CLOUD?.ready) {
+      setStatus("保存中...");
+      await window.CLOVER_CLOUD.push();
+    }
     selectedId = cast.id;
+    isCreatingCast = false;
     renderList();
     fillForm(cast);
-    setStatus("保存しました");
+    setStatus(existingIndex >= 0 ? "保存しました" : "新規登録しました");
   });
 
   siteForm.addEventListener("submit", (event) => {
@@ -408,13 +441,7 @@
     if (button) selectCast(button.dataset.id);
   });
 
-  document.getElementById("newCastButton").addEventListener("click", () => {
-    const cast = blankCast();
-    selectedId = cast.id;
-    fillForm(cast);
-    renderList();
-    setStatus("新規入力");
-  });
+  fields.newButton.addEventListener("click", startNewCast);
 
   document.getElementById("deleteCastButton").addEventListener("click", () => {
     if (!fields.id.value) return;
@@ -424,6 +451,7 @@
     casts = casts.filter((cast) => cast.id !== fields.id.value);
     CLOVER.saveCasts(casts);
     selectedId = casts[0] ? casts[0].id : "";
+    isCreatingCast = false;
     renderList();
     fillForm(selectedCast());
     setStatus("削除しました");
@@ -439,6 +467,7 @@
       renderPickupNewsList();
     }
     selectedId = casts[0].id;
+    isCreatingCast = false;
     fillSiteForm();
     renderList();
     fillForm(selectedCast());
@@ -593,6 +622,7 @@
   document.addEventListener("clover:data-sync", () => {
     casts = CLOVER.loadCasts();
     selectedId = casts.some((cast) => cast.id === selectedId) ? selectedId : casts[0]?.id || "";
+    isCreatingCast = false;
     pickupNews = CLOVER.loadPickupNews();
     renderList();
     renderPickupNewsList();
