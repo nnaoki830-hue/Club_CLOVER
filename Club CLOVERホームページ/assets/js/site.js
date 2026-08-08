@@ -8,6 +8,7 @@
   let autoBlogPosts = [];
   let autoBlogLoading = false;
   let newsExpanded = false;
+  let blogsExpanded = false;
 
   if (intro) {
     const finishIntro = () => {
@@ -500,9 +501,18 @@
     const blogUpdates = document.getElementById("blogUpdates");
     if (!blogUpdates) return;
     const blogs = allRecentBlogPosts(CLOVER.loadCasts());
+    const visibleBlogs = blogsExpanded ? blogs : blogs.slice(0, 5);
+    const hiddenCount = Math.max(blogs.length - 5, 0);
 
     blogUpdates.innerHTML = blogs.length
-      ? blogs.map((blog) => blogCard(blog, "BLOG UPDATE")).join("")
+      ? `
+          ${visibleBlogs.map((blog) => blogCard(blog, "BLOG UPDATE")).join("")}
+          ${hiddenCount ? `
+            <button class="news-more-button" type="button" data-blog-toggle aria-expanded="${String(blogsExpanded)}">
+              ${blogsExpanded ? "閉じる" : `もっと見る（あと${hiddenCount}件）`}
+            </button>
+          ` : ""}
+        `
       : `<p class="empty-state">30日以内のブログ更新はありません</p>`;
   }
 
@@ -654,6 +664,13 @@
     if (newsToggle) {
       newsExpanded = !newsExpanded;
       renderNews();
+      return;
+    }
+
+    const blogToggle = event.target.closest?.("[data-blog-toggle]");
+    if (blogToggle) {
+      blogsExpanded = !blogsExpanded;
+      renderBlogs();
       return;
     }
 
