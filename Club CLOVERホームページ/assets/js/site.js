@@ -244,10 +244,33 @@
     return `${date.getFullYear()}-${month}-${day}`;
   }
 
+  function textFromHtml(value) {
+    const holder = document.createElement("div");
+    holder.innerHTML = String(value || "");
+    return holder.textContent.replace(/\s+/g, " ").trim();
+  }
+
+  function firstImageFromHtml(value) {
+    const holder = document.createElement("div");
+    holder.innerHTML = String(value || "");
+    return normalizeExternalUrl(holder.querySelector("img")?.getAttribute("src") || "");
+  }
+
+  function shortenText(value, length = 120) {
+    const text = textFromHtml(value);
+    return text.length > length ? `${text.slice(0, length)}...` : text;
+  }
+
+  function blogDetailUrl(blog) {
+    return `blog.html?cast=${encodeURIComponent(blog.castId || "")}&url=${encodeURIComponent(blog.url || blog.id || "")}`;
+  }
+
   function blogObjectFromRss(item, index, cast) {
     const title = item.title || item.querySelector?.("title")?.textContent || "";
     const link = normalizeExternalUrl(item.link || item.querySelector?.("link")?.textContent || "");
     const pubDate = item.pubDate || item.querySelector?.("pubDate")?.textContent || "";
+    const content = item.content || item.description || item.querySelector?.("description")?.textContent || item.querySelector?.("content\\:encoded")?.textContent || "";
+    const thumbnail = normalizeExternalUrl(item.thumbnail || item.enclosure?.link || firstImageFromHtml(content));
     return {
       id: `pokepara-${cast.id}-${index}-${link}`,
       title,
@@ -258,6 +281,9 @@
       castKana: cast.kana,
       castPhoto: cast.photo,
       pokepalaUrl: cast.pokepalaUrl,
+      thumbnail,
+      body: textFromHtml(content),
+      excerpt: shortenText(content),
       source: "pokepara"
     };
   }
@@ -321,6 +347,7 @@
       renderBlogs();
       renderCasts({ loadBlogs: false });
       renderCastProfileDetail({ loadBlogs: false });
+      renderBlogDetail({ loadBlogs: false });
     } finally {
       autoBlogLoading = false;
     }
@@ -336,10 +363,8 @@
       : renderPlaceholderLogo();
     const latestBlog = allRecentBlogPosts([cast])[0];
     const blogLink = latestBlog
-      ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(latestBlog.url)}" target="_blank" rel="noopener">最新ブログを見る</a>`
-      : cast.pokepalaUrl
-        ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(normalizeExternalUrl(cast.pokepalaUrl))}" target="_blank" rel="noopener">ポケパラを見る</a>`
-        : "";
+      ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(blogDetailUrl(latestBlog))}">最新ブログを見る</a>`
+      : "";
 
     return `
       <article class="cast-card" data-profile-url="${CLOVER.escapeHtml(castProfileUrl(cast))}" tabindex="0">
@@ -424,25 +449,29 @@
     return `${date.getMonth() + 1}/${date.getDate()}`;
   }
 
+  function blogCard(blog, label = "BLOG") {
+    const thumbnail = blog.thumbnail || blog.castPhoto || "";
+    return `
+      <a class="blog-card${thumbnail ? " has-blog-thumb" : ""}" href="${CLOVER.escapeHtml(blogDetailUrl(blog))}">
+        <span class="blog-date">${CLOVER.escapeHtml(formatBlogDate(blog.date))}</span>
+        ${thumbnail ? `<span class="blog-thumb"><img src="${CLOVER.escapeHtml(thumbnail)}" alt=""></span>` : ""}
+        <span>
+          <small>${CLOVER.escapeHtml(label)}</small>
+          <strong>${CLOVER.escapeHtml(blog.title)}</strong>
+          <em>${CLOVER.escapeHtml(blog.castName || "Club CLOVER")}</em>
+          ${blog.excerpt ? `<span class="blog-excerpt">${CLOVER.escapeHtml(blog.excerpt)}</span>` : ""}
+        </span>
+      </a>
+    `;
+  }
+
   function renderBlogs() {
     const blogUpdates = document.getElementById("blogUpdates");
     if (!blogUpdates) return;
     const blogs = allRecentBlogPosts(CLOVER.loadCasts());
 
     blogUpdates.innerHTML = blogs.length
-      ? blogs
-          .map(
-            (blog) => `
-              <a class="blog-card" href="${CLOVER.escapeHtml(blog.url)}" target="_blank" rel="noopener">
-                <span class="blog-date">${CLOVER.escapeHtml(formatBlogDate(blog.date))}</span>
-                <span>
-                  <strong>${CLOVER.escapeHtml(blog.title)}</strong>
-                  <small>${CLOVER.escapeHtml(blog.castName)} / Pokepala</small>
-                </span>
-              </a>
-            `
-          )
-          .join("")
+      ? blogs.map((blog) => blogCard(blog, "BLOG UPDATE")).join("")
       : `<p class="empty-state">30日以内のブログ更新はありません</p>`;
   }
 
@@ -466,15 +495,7 @@
       : renderPlaceholderLogo();
     const blogs = allRecentBlogPosts([cast]).slice(0, 5);
     const blogList = blogs.length
-      ? blogs.map((blog) => `
-          <a class="blog-card" href="${CLOVER.escapeHtml(blog.url)}" target="_blank" rel="noopener">
-            <span class="blog-date">${CLOVER.escapeHtml(formatBlogDate(blog.date))}</span>
-            <span>
-              <strong>${CLOVER.escapeHtml(blog.title)}</strong>
-              <small>Pokepala</small>
-            </span>
-          </a>
-        `).join("")
+      ? blogs.map((blog) => blogCard(blog, "BLOG")).join("")
       : `<p class="empty-state">30日以内のブログ更新はありません</p>`;
 
     document.title = `${cast.name} | Club CLOVER`;
@@ -488,7 +509,6 @@
         <span>${CLOVER.escapeHtml(cast.kana)}</span>
         ${renderCastDetails(cast)}
         ${renderCastQa(cast)}
-        ${cast.pokepalaUrl ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(normalizeExternalUrl(cast.pokepalaUrl))}" target="_blank" rel="noopener">ポケパラを見る</a>` : ""}
       </div>
       <section class="cast-profile-blogs" aria-label="ブログ更新">
         <div class="section-heading compact">
@@ -497,6 +517,50 @@
         </div>
         <div class="blog-list">${blogList}</div>
       </section>
+    `;
+
+    if (options.loadBlogs !== false) {
+      loadPokeparaBlogs(casts);
+    }
+  }
+
+
+  function selectedBlogUrl() {
+    return normalizeExternalUrl(new URLSearchParams(window.location.search).get("url") || "");
+  }
+
+  function renderBlogDetail(options = {}) {
+    const detail = document.getElementById("blogDetail");
+    if (!detail) return;
+
+    const casts = CLOVER.loadCasts().filter((cast) => cast.visible);
+    const blogs = allRecentBlogPosts(casts);
+    const targetUrl = selectedBlogUrl();
+    const blog = blogs.find((item) => normalizeExternalUrl(item.url) === targetUrl) || blogs[0];
+
+    if (!blog) {
+      detail.innerHTML = `<p class="empty-state">ブログを読み込み中です</p>`;
+      if (options.loadBlogs !== false && !autoBlogLoading) loadPokeparaBlogs(casts);
+      return;
+    }
+
+    const cast = casts.find((item) => item.id === blog.castId) || {};
+    const thumbnail = blog.thumbnail || blog.castPhoto || cast.photo || "";
+    document.title = `${blog.title} | Club CLOVER`;
+    detail.innerHTML = `
+      <article class="blog-detail-article">
+        <a class="back-link" href="${CLOVER.escapeHtml(cast.id ? castProfileUrl(cast) : "index.html#blog")}">BACK</a>
+        <p class="section-kicker">CAST BLOG</p>
+        <h1>${CLOVER.escapeHtml(blog.title)}</h1>
+        <div class="blog-detail-meta">
+          <span>${CLOVER.escapeHtml(formatBlogDate(blog.date))}</span>
+          <span>${CLOVER.escapeHtml(blog.castName || "Club CLOVER")}</span>
+        </div>
+        ${thumbnail ? `<div class="blog-detail-photo"><img src="${CLOVER.escapeHtml(thumbnail)}" alt=""></div>` : ""}
+        <div class="blog-detail-body">
+          <p>${CLOVER.escapeHtml(blog.body || blog.excerpt || "ブログ本文を読み込みました。")}</p>
+        </div>
+      </article>
     `;
 
     if (options.loadBlogs !== false) {
@@ -534,6 +598,7 @@
   renderBlogs();
   renderCasts();
   renderCastProfileDetail();
+  renderBlogDetail();
 
   document.addEventListener("clover:data-sync", () => {
     applySiteSettings();
@@ -541,6 +606,7 @@
     renderBlogs();
     renderCasts();
     renderCastProfileDetail();
+    renderBlogDetail();
   });
 
   document.addEventListener("click", (event) => {
