@@ -5,6 +5,8 @@
   const progress = document.querySelector(".hero-progress span");
   let activeSlide = 0;
   let slideTimer;
+  let autoBlogPosts = [];
+  let autoBlogLoading = false;
 
   if (intro) {
     const finishIntro = () => {
@@ -206,15 +208,124 @@
     `;
   }
 
+  function normalizeExternalUrl(url) {
+    const value = String(url || "").trim();
+    if (!value) return "";
+    return value.replace(/^http:\/\//, "https://");
+  }
+
+  function pokeparaRssUrl(url) {
+    const match = String(url || "").match(/\/gal\/(\d+)\//);
+    return match ? `https://www.pokepara.jp/rss/gal/${match[1]}/rss2.xml` : "";
+  }
+
+  async function fetchRssText(url) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return response.text();
+    } catch (error) {
+      // Some RSS feeds do not allow direct browser access; the fallback keeps display automatic on static hosting.
+    }
+
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error("RSSを取得できませんでした");
+    return response.text();
+  }
+
+  function toDateKey(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${date.getFullYear()}-${month}-${day}`;
+  }
+
+  function parsePokeparaRss(xmlText, cast) {
+    const documentXml = new DOMParser().parseFromString(xmlText, "application/xml");
+    return Array.from(documentXml.querySelectorAll("item"))
+      .map((item, index) => {
+        const title = item.querySelector("title")?.textContent || "";
+        const link = normalizeExternalUrl(item.querySelector("link")?.textContent || "");
+        const pubDate = item.querySelector("pubDate")?.textContent || "";
+        return {
+          id: `pokepara-${cast.id}-${index}-${link}`,
+          title,
+          url: link,
+          date: toDateKey(pubDate),
+          castId: cast.id,
+          castName: cast.name,
+          castKana: cast.kana,
+          castPhoto: cast.photo,
+          pokepalaUrl: cast.pokepalaUrl,
+          source: "pokepara"
+        };
+      })
+      .filter((blog) => blog.title && blog.url && blog.date);
+  }
+
+  function recentAutoBlogPosts(now = new Date()) {
+    const border = new Date(now);
+    border.setHours(0, 0, 0, 0);
+    border.setDate(border.getDate() - 30);
+
+    return autoBlogPosts
+      .filter((blog) => {
+        const date = new Date(blog.date);
+        return !Number.isNaN(date.getTime()) && date >= border && date <= now;
+      });
+  }
+
+  function allRecentBlogPosts(casts) {
+    const castIds = new Set(casts.map((cast) => cast.id));
+    const seen = new Set();
+    return [...CLOVER.recentBlogPosts(casts), ...recentAutoBlogPosts().filter((blog) => castIds.has(blog.castId))]
+      .filter((blog) => {
+        const key = normalizeExternalUrl(blog.url);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        blog.url = key;
+        return true;
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  async function loadPokeparaBlogs(casts) {
+    if (autoBlogLoading) return;
+    const targets = casts.filter((cast) => cast.visible && pokeparaRssUrl(cast.pokepalaUrl));
+    if (!targets.length) {
+      autoBlogPosts = [];
+      return;
+    }
+
+    autoBlogLoading = true;
+    try {
+      const posts = await Promise.all(
+        targets.map(async (cast) => {
+          try {
+            return parsePokeparaRss(await fetchRssText(pokeparaRssUrl(cast.pokepalaUrl)), cast);
+          } catch (error) {
+            return [];
+          }
+        })
+      );
+      autoBlogPosts = posts.flat();
+      renderBlogs();
+      renderCasts({ loadBlogs: false });
+    } finally {
+      autoBlogLoading = false;
+    }
+  }
+
   function renderCastCard(cast) {
     const photo = cast.photo
       ? `<img src="${cast.photo}" alt="${CLOVER.escapeHtml(cast.name)}">`
       : renderPlaceholderLogo();
-    const latestBlog = CLOVER.recentBlogPosts([cast])[0];
+    const latestBlog = allRecentBlogPosts([cast])[0];
     const blogLink = latestBlog
       ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(latestBlog.url)}" target="_blank" rel="noopener">最新ブログを見る</a>`
       : cast.pokepalaUrl
-        ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(cast.pokepalaUrl)}" target="_blank" rel="noopener">ポケパラを見る</a>`
+        ? `<a class="cast-blog-link" href="${CLOVER.escapeHtml(normalizeExternalUrl(cast.pokepalaUrl))}" target="_blank" rel="noopener">ポケパラを見る</a>`
         : "";
 
     return `
@@ -250,7 +361,7 @@
     `;
   }
 
-  function renderCasts() {
+  function renderCasts(options = {}) {
     const castGrid = document.getElementById("castGrid");
     const todaySchedule = document.getElementById("todaySchedule");
     const todayDate = document.getElementById("todayDate");
@@ -287,6 +398,10 @@
         ? todayCasts.map(renderTodayCard).join("")
         : `<p class="today-empty">本日の出勤情報は店舗へご確認ください</p>`;
     }
+
+    if (options.loadBlogs !== false) {
+      loadPokeparaBlogs(casts);
+    }
   }
 
   function formatBlogDate(dateValue) {
@@ -298,7 +413,7 @@
   function renderBlogs() {
     const blogUpdates = document.getElementById("blogUpdates");
     if (!blogUpdates) return;
-    const blogs = CLOVER.recentBlogPosts(CLOVER.loadCasts());
+    const blogs = allRecentBlogPosts(CLOVER.loadCasts());
 
     blogUpdates.innerHTML = blogs.length
       ? blogs
